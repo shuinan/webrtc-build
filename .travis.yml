@@ -17,7 +17,6 @@ install:
 - gclient sync
 - cd $BASEDIR/src
 - gn gen out/macos --args="is_debug=false target_cpu=\"x64\" rtc_include_tests=false"
-- ls -al out/macos/release/include/
 - tar -zcvf out/macos/release.tar.gz  $BASEDIR/src
 script:
 - echo "webrtc"
