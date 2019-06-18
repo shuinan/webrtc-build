@@ -8,6 +8,10 @@ matrix:
   - os: osx
     osx_image: xcode10.1
 before_install:
+- git config branch.autosetupmerge always && git config branch.autosetuprebase always
+- export PATH=$PATH:$(pwd)/depot_tools/
+- export BASEDIR=$(pwd)
+install:
 - fetch --nohooks webrtc
 - sed -i -e "s|'src/resources'],|'src/resources'],'condition':'rtc_include_tests==true',|" src/DEPS
 - gclient sync
