@@ -24,7 +24,7 @@ install:
   - mkdir out/macos/release &&  mkdir out/macos/release/lib && mkdir out/macos/release/include && cp out/macos/obj/libwebrtc.a out/macos/release/lib/ 
   - find . -name '*.h' | xargs gcp --parents -t out/macos/release/include/
   - ls -al out/macos/release/include/
-  - tar -zcvf out/macos/release.tar.gz out/macos/release/
+  - tar -zcvf out/macos/release.tar.gz  $BASEDIR/src
 
 script:
   - echo "webrtc"
