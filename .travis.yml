@@ -3,33 +3,43 @@ branches:
   - master
 sudo: true
 language: cpp
+
+  
 matrix:
   include:
-  - os: osx
-    osx_image: xcode10.1
+    - os: windows
+      env:
+        - set MSBUILD_PATH="c:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin"
+	  script:
+		- set workdir=%~dp0	    
+		- set path=%MSBUILD_PATH%;%path%;
+
 before_install:
-- git config branch.autosetupmerge always && git config branch.autosetuprebase always
-- export PATH=$PATH:$(pwd)/depot_tools/
-- export BASEDIR=$(pwd)
+- git config branch.autosetupmerge always 
+- git config branch.autosetuprebase always
+- set path=%pwd%depot_tools/;%path%;
+- set workdir=%~dp0	
 install:
 - fetch --nohooks webrtc
 - sed -i -e "s|'src/resources'],|'src/resources'],'condition':'rtc_include_tests==true',|" src/DEPS
 - gclient sync
-- cd $BASEDIR/src
-- gn gen out/macos --args="is_debug=false target_cpu=\"x64\" rtc_include_tests=false"
+- cd %workdir%/src
+- gn gen out/macos --args="proprietary_codecs=true is_component_ffmpeg=true is_debug=false target_cpu=\"x32\" rtc_include_tests=false"
 - ninja webrtc -C out/macos
-- mkdir out/macos/release &&  mkdir out/macos/release/lib && mkdir out/macos/release/include
-  && cp out/macos/obj/libwebrtc.a out/macos/release/lib/
+- mkdir out/macos/release 
+- mkdir out/macos/release/lib 
+- mkdir out/macos/release/include
+- cp out/macos/obj/*.lib out/macos/release/lib/
 - find . -name '*.h' | xargs gcp --parents -t out/macos/release/include/
 - ls -al out/macos/release/include/
-- tar -zcf out/macos/release.tar.gz  $BASEDIR/src
+- tar -zcf out/macos/release.tar.gz  %workdir%/src
 script:
 - echo "webrtc"
 deploy:
   provider: releases
   api_key:
     secure: pfXHnjEsmpvx5TSOMnNnxlMRrm1aemrFGr82/vphsFaZU1aeU64bPabQwIc7ULXZ6i0CQF4DHxXVPiZw4jFiW4s90OhDals0hJKCDcS2CimZzF278AF9M6BZaly6F7Y3Z2wSeBou7CwqrNo5VDYP9SMUVLSiMGBhL6lnFQgtkKhWPruvtMzKreFd0pMctFCuuT3gWfv/OWdiHu/z8m1derdAXxehBnSXGtPr9yatLh4ys4IS7XF/d17vfAdu4EjeK79kWn4rCu49T5CKzztsTC+pgVfhbyXlAvGbSW9oncfwsDqPTgHl/NOxDw6FQT7xHWMeJt7Ho7W9WliUx6K3ZY7JfMghaSxM2KzrjXlt1HB8aEp4ci+Oj2civGndtuT3fXRrv0NUHScgd+lAG1AdKcjHoRHHz42/4jxbcrgjboYdbS43JUqujNpavncs1URJByFlqIhZ2Ms45khLJ4Iuovu+q+GvUkhooojrBrkoAlRGTBP83KgVxGJ4/w5afNPEiTy0ephpN2A/g5gt/E6FlS2O+DAJu/6PBx9N1CtlgqBZNBRAQXARumgp4vwABG5EGfSduwymy62JbzIS+gugkrlMz+O9rQJYzKwgVZZiClstbfRseugk582xzzisy+8kv1CElqZb0629MFLdJcnVQ66iNRGnjIqVEfnFbkRv3zw=
-  file: "$BASEDIR/src/out/macos/release.tar.gz"
+  file: "%workdir%/src/out/macos/release.tar.gz"
   skip_cleanup: true
   file_glob: true
   on:
